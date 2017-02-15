@@ -35,11 +35,13 @@ contents = '''<!DOCTYPE html>
 
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 def valid_username(username):
-    return USER_RE.match(username)
+    return username and USER_RE.match(username)
+
 
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
+
         username_label = "<label>Username</label>"
         username = "<input name='username' type='text' required/>"
 
@@ -55,37 +57,39 @@ class MainHandler(webapp2.RequestHandler):
         submit = "<input type='submit' action=/>"
 
 
-        form = ("<form method='get' action='/welcome'>" +
+        form = ("<form method='post'" +
                 username_label + username + "<br>" +
                 password_label + password + "<br>" +
                 verify_label + verify + "<br>" +
                 email_label + email + "<br>" +
                 submit + "</form>"
-
-        )
+                )
 
 
         header = "<h1>Signup</h1>"
 
-
-
         self.response.write(header + form)
+
+    def post(self):
+        username = self.request.get("username")
+        password = self.request.get("password")
+        verify = self.request.get("verify")
+        email = self.request.get("email")
+
+        if valid_username(username):
+            self.redirect('/welcome?username=' + username)
+
+
 
 
 class Welcome(webapp2.RequestHandler):
     def get(self):
         username = self.request.get('username')
         if valid_username(username):
-            self.response.write(username)
+            self.response.write("Welcome, " + username + "!")
         else:
-            self.redirect('/')
+            self.response.write('this is the else')
 
-
-
-        # username = valid_username(self.request.get("username"))
-        # password = valid_password(self.request.get("password"))
-        # verify = valid_verify(self.request.get("verify"))
-        # email = valid_email(self.request.get("email"))
 
 
 
