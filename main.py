@@ -57,7 +57,7 @@ error_messages = ["That's not a valid username",
 
 
 
-def build_form(error_username,error_password,error_match,error_email):
+def build_form(username_input,email_input,error_username,error_password,error_match,error_email):
 
     signup_header = "<h1>Signup</h1>"
 
@@ -66,7 +66,7 @@ def build_form(error_username,error_password,error_match,error_email):
     <table>
         <tr>
         <td><label>Username</label></td>
-        <td><input name='username' type='text' required/></td>
+        <td><input name='username' type='text' value="'''+username_input+'''" required/></td>
         <td><span class='error'>'''+error_username+'''</span></td>
         </tr>
 
@@ -84,7 +84,7 @@ def build_form(error_username,error_password,error_match,error_email):
 
         <tr>
         <td><label>Email (optional)</label></td>
-        <td><input name='email' type='email'/></td>
+        <td><input name='email' type='email' value="'''+email_input+'''"/></td>
         <td><span class='error'>'''+error_email+'''</span></td>
         </tr>
     </table>
@@ -136,7 +136,7 @@ class Signup(webapp2.RequestHandler):
 
         # main_content = form
 
-        content = build_form("","","","")
+        content = build_form("","","","","","")
 
         self.response.write(content)
 
@@ -151,26 +151,30 @@ class Signup(webapp2.RequestHandler):
         match_err = ""
         email_err = ""
 
+        errors = False
+
         if not valid_username(username):
             name_err += error_messages[0]
+            errors = True
 
         if not valid_password(password):
             pass_err += error_messages[1]
+            errors = True
 
         if password != verify:
             match_err += error_messages[2]
+            errors = True
 
         if len(email) > 0:
             if not valid_email(email):
                 email_err += error_messages[3]
+                errors = True
 
-        else:
+        if errors == False:
             self.redirect('/welcome?username=' + username)
-
-        error_codes = build_form(name_err,pass_err,match_err,email_err)
-        self.response.write(error_codes)
-
-
+        if errors == True:
+            error_codes = build_form(username,email,name_err,pass_err,match_err,email_err)
+            self.response.write(error_codes)
 
 
 
